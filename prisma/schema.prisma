@@ -22,16 +22,28 @@ enum TicketStatus {
   CLOSED
 }
 
+enum TicketHistoryAction {
+  CREATED
+  STATUS_CHANGED
+  ASSIGNED
+  UNASSIGNED
+  COMMENTED
+}
+
 model User {
-  id               String   @id @default(uuid()) @db.Uuid
-  name             String
-  email            String   @unique
-  passwordHash     String
-  role             Role     @default(USER)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  ticketsCreated   Ticket[] @relation("TicketCreatedBy")
-  ticketsAssigned  Ticket[] @relation("TicketAssignedTo")
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String
+  email           String   @unique
+  passwordHash    String
+  role            Role     @default(USER)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  ticketsCreated  Ticket[] @relation("TicketCreatedBy")
+  ticketsAssigned Ticket[] @relation("TicketAssignedTo")
+  comments        Comment[]
+  assignmentsMade TicketAssignment[] @relation("TicketAssignmentMade")
+  assignmentsReceived TicketAssignment[] @relation("TicketAssignmentReceived")
+  historiesMade   TicketHistory[]
 }
 
 model Category {
@@ -54,25 +66,78 @@ model Priority {
 }
 
 model Ticket {
-  id            String       @id @default(uuid()) @db.Uuid
-  title         String
-  description   String
-  status        TicketStatus  @default(OPEN)
-  categoryId    String       @db.Uuid
-  priorityId    String       @db.Uuid
-  createdById   String       @db.Uuid
-  assignedToId  String?      @db.Uuid
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id           String       @id @default(uuid()) @db.Uuid
+  title        String
+  description  String
+  status       TicketStatus @default(OPEN)
+  categoryId   String       @db.Uuid
+  priorityId   String       @db.Uuid
+  createdById  String       @db.Uuid
+  assignedToId String?      @db.Uuid
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
-  category      Category     @relation(fields: [categoryId], references: [id])
-  priority      Priority     @relation(fields: [priorityId], references: [id])
-  createdBy     User         @relation("TicketCreatedBy", fields: [createdById], references: [id])
-  assignedTo    User?        @relation("TicketAssignedTo", fields: [assignedToId], references: [id])
+  category     Category          @relation(fields: [categoryId], references: [id])
+  priority     Priority          @relation(fields: [priorityId], references: [id])
+  createdBy    User              @relation("TicketCreatedBy", fields: [createdById], references: [id])
+  assignedTo   User?             @relation("TicketAssignedTo", fields: [assignedToId], references: [id])
+  comments     Comment[]
+  assignments  TicketAssignment[]
+  histories    TicketHistory[]
 
   @@index([status])
   @@index([categoryId])
   @@index([priorityId])
   @@index([createdById])
   @@index([assignedToId])
+}
+
+model Comment {
+  id         String   @id @default(uuid()) @db.Uuid
+  content    String
+  ticketId   String   @db.Uuid
+  userId     String   @db.Uuid
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  ticket     Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author     User     @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@index([userId])
+}
+
+model TicketAssignment {
+  id           String   @id @default(uuid()) @db.Uuid
+  ticketId     String   @db.Uuid
+  assignedToId String   @db.Uuid
+  assignedById String   @db.Uuid
+  assignedAt   DateTime @default(now())
+  unassignedAt DateTime?
+
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  assignedTo   User     @relation("TicketAssignmentReceived", fields: [assignedToId], references: [id])
+  assignedBy   User     @relation("TicketAssignmentMade", fields: [assignedById], references: [id])
+
+  @@index([ticketId])
+  @@index([assignedToId])
+  @@index([assignedById])
+}
+
+model TicketHistory {
+  id          String               @id @default(uuid()) @db.Uuid
+  ticketId    String               @db.Uuid
+  changedById String               @db.Uuid
+  action      TicketHistoryAction
+  field       String
+  oldValue    String?
+  newValue    String?
+  createdAt   DateTime             @default(now())
+
+  ticket      Ticket               @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  changedBy   User                 @relation(fields: [changedById], references: [id])
+
+  @@index([ticketId])
+  @@index([changedById])
+  @@index([action])
 }
