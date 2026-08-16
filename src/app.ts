@@ -1,9 +1,9 @@
-import express, {type Express} from "express";
+import express, { type Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 
 import healthRouter from "./routes/health";
-
+import authRouter from "./modules/auth/routes/authRoutes";
 
 export default function createApp(): Express {
   const app = express();
@@ -18,7 +18,8 @@ export default function createApp(): Express {
     });
   });
 
-  app.use("/api/v1/health", healthRouter)
+  app.use("/api/v1/health", healthRouter);
+  app.use("/api/v1/auth", authRouter);
 
   return app;
 }
