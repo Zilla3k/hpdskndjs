@@ -4,6 +4,9 @@ import helmet from "helmet";
 
 import healthRouter from "./routes/health";
 import authRouter from "./modules/auth/routes/authRoutes";
+import categoryRouter from "./modules/categories/routes/categoryRoutes";
+import priorityRouter from "./modules/priorities/routes/priorityRoutes";
+import ticketRouter from "./modules/tickets/routes/ticketRoutes";
 
 export default function createApp(): Express {
   const app = express();
@@ -20,6 +23,9 @@ export default function createApp(): Express {
 
   app.use("/api/v1/health", healthRouter);
   app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/categories", categoryRouter);
+  app.use("/api/v1/priorities", priorityRouter);
+  app.use("/api/v1/tickets", ticketRouter);
 
   return app;
 }
