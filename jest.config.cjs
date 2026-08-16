@@ -10,9 +10,5 @@ module.exports = {
     prefix: "<rootDir>/",
   }),
   testMatch: ["**/*.spec.ts"],
-  collectCoverageFrom: [
-    "src/**/*.{ts,tsx}",
-    "!src/generated/**",
-    "!src/**/*.d.ts",
-  ],
+  collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/generated/**", "!src/**/*.d.ts"],
 };

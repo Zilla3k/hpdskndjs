@@ -95,9 +95,7 @@ describe("UserService", () => {
       const expectedError = new Error("Database error on findById");
       mockPrisma.user.findUnique.mockRejectedValue(expectedError);
 
-      await expect(service.findById("user-1")).rejects.toThrow(
-        "Database error on findById",
-      );
+      await expect(service.findById("user-1")).rejects.toThrow("Database error on findById");
     });
   });
 
