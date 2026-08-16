@@ -9,4 +9,4 @@ healthRouter.get("/", (_req, _res) => {
   });
 });
 
-export { healthRouter };
+export default healthRouter;
