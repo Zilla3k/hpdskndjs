@@ -14,12 +14,65 @@ enum Role {
   USER
 }
 
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
 model User {
-  id            String @id @default(uuid()) @db.Uuid
-  name          String 
-  email         String @unique
-  passwordHash  String
-  role          Role @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String
+  email            String   @unique
+  passwordHash     String
+  role             Role     @default(USER)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  ticketsCreated   Ticket[] @relation("TicketCreatedBy")
+  ticketsAssigned  Ticket[] @relation("TicketAssignedTo")
+}
+
+model Category {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tickets     Ticket[]
+}
+
+model Priority {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  level       Int      @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tickets     Ticket[]
+}
+
+model Ticket {
+  id            String       @id @default(uuid()) @db.Uuid
+  title         String
+  description   String
+  status        TicketStatus  @default(OPEN)
+  categoryId    String       @db.Uuid
+  priorityId    String       @db.Uuid
+  createdById   String       @db.Uuid
+  assignedToId  String?      @db.Uuid
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  category      Category     @relation(fields: [categoryId], references: [id])
+  priority      Priority     @relation(fields: [priorityId], references: [id])
+  createdBy     User         @relation("TicketCreatedBy", fields: [createdById], references: [id])
+  assignedTo    User?        @relation("TicketAssignedTo", fields: [assignedToId], references: [id])
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([priorityId])
+  @@index([createdById])
+  @@index([assignedToId])
 }
