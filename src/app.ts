@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 
 import healthRouter from "./routes/health";
+import docsRouter from "./routes/docs";
 import authRouter from "./modules/auth/routes/authRoutes";
 import dashboardRouter from "./modules/dashboard/routes/dashboardRoutes";
 import categoryRouter from "./modules/categories/routes/categoryRoutes";
@@ -27,6 +28,7 @@ export default function createApp(): Express {
   });
 
   app.use("/api/v1/health", healthRouter);
+  app.use("/api/v1/docs", docsRouter);
   app.use("/api/v1/auth", authRouter);
   app.use("/api/v1/dashboard", dashboardRouter);
   app.use("/api/v1/categories", categoryRouter);
