@@ -17,7 +17,12 @@ function getErrorCategory(error: AppError): ErrorCategory {
     return "validation";
   }
 
-  if (error.statusCode === 401 || error.code === "UNAUTHORIZED") {
+  if (
+    error.statusCode === 401 ||
+    error.statusCode === 403 ||
+    error.code === "UNAUTHORIZED" ||
+    error.code === "FORBIDDEN"
+  ) {
     return "auth";
   }
 
