@@ -1,6 +1,7 @@
 import { TicketHistoryAction, TicketStatus } from "@/generated/prisma/enums";
 import { AppError } from "@/shared/errors/appError";
 import { prisma } from "@/shared/prisma/prisma";
+import { buildPaginationMeta, getPagination } from "@/shared/pagination/pagination";
 import { TicketHistoryService } from "./ticketHistoryService";
 
 type CreateTicketRequest = {
@@ -17,6 +18,10 @@ type ListTicketsRequest = {
   priorityId?: string;
   createdById?: string;
   assignedToId?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: "createdAt" | "status" | "priority";
+  sortOrder?: "asc" | "desc";
 };
 
 export class TicketService {
@@ -64,17 +69,41 @@ export class TicketService {
   }
 
   async list(filters: ListTicketsRequest = {}) {
-    return prisma.ticket.findMany({
-      where: {
-        ...(filters.status ? { status: filters.status } : {}),
-        ...(filters.categoryId ? { categoryId: filters.categoryId } : {}),
-        ...(filters.priorityId ? { priorityId: filters.priorityId } : {}),
-        ...(filters.createdById ? { createdById: filters.createdById } : {}),
-        ...(filters.assignedToId !== undefined ? { assignedToId: filters.assignedToId } : {}),
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+    const pagination = getPagination({
+      page: filters.page,
+      limit: filters.limit,
     });
+
+    const where = {
+      ...(filters.status ? { status: filters.status } : {}),
+      ...(filters.categoryId ? { categoryId: filters.categoryId } : {}),
+      ...(filters.priorityId ? { priorityId: filters.priorityId } : {}),
+      ...(filters.createdById ? { createdById: filters.createdById } : {}),
+      ...(filters.assignedToId !== undefined ? { assignedToId: filters.assignedToId } : {}),
+    };
+
+    const orderBy =
+      filters.sortBy === "status"
+        ? { status: filters.sortOrder ?? "desc" }
+        : filters.sortBy === "priority"
+          ? { priority: { level: filters.sortOrder ?? "asc" } }
+          : { createdAt: filters.sortOrder ?? "desc" };
+
+    const [tickets, total] = await prisma.$transaction([
+      prisma.ticket.findMany({
+        where,
+        orderBy,
+        skip: pagination.skip,
+        take: pagination.limit,
+      }),
+      prisma.ticket.count({
+        where,
+      }),
+    ]);
+
+    return {
+      data: tickets,
+      pagination: buildPaginationMeta(pagination.page, pagination.limit, total),
+    };
   }
 }

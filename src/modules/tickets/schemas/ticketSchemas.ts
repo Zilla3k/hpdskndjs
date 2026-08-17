@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { TicketStatus } from "@/generated/prisma/enums";
 
+const ticketSortFields = z.enum(["createdAt", "status", "priority"]);
+const sortOrderSchema = z.enum(["asc", "desc"]);
+
 export const createTicketSchema = z.object({
   title: z.string().min(3, "Title must have at least 3 characters"),
   description: z.string().min(10, "Description must have at least 10 characters"),
@@ -15,6 +18,10 @@ export const listTicketsQuerySchema = z.object({
   priorityId: z.string().uuid().optional(),
   createdById: z.string().uuid().optional(),
   assignedToId: z.string().uuid().optional(),
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().max(100).optional(),
+  sortBy: ticketSortFields.optional(),
+  sortOrder: sortOrderSchema.optional(),
 });
 export const ticketParamsSchema = z.object({
   ticketId: z.string().uuid("Ticket ID must be a valid UUID"),

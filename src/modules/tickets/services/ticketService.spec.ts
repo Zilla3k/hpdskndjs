@@ -17,7 +17,9 @@ jest.mock("@/shared/prisma/prisma", () => ({
     ticket: {
       create: jest.fn(),
       findMany: jest.fn(),
+      count: jest.fn(),
     },
+    $transaction: jest.fn(async (operations: Array<Promise<unknown>>) => Promise.all(operations)),
     ticketHistory: {
       create: jest.fn(),
     },
@@ -37,7 +39,9 @@ const mockPrisma = prismaClient as unknown as {
   ticket: {
     create: jest.Mock;
     findMany: jest.Mock;
+    count: jest.Mock;
   };
+  $transaction: jest.Mock;
   ticketHistory: {
     create: jest.Mock;
   };
@@ -161,7 +165,7 @@ describe("TicketService", () => {
   });
 
   describe("list", () => {
-    it("should list tickets with filters", async () => {
+    it("should list tickets with filters and pagination", async () => {
       mockPrisma.ticket.findMany.mockResolvedValue([
         {
           id: "ticket-1",
@@ -169,6 +173,7 @@ describe("TicketService", () => {
           status: TicketStatus.OPEN,
         },
       ]);
+      mockPrisma.ticket.count.mockResolvedValue(1);
 
       const result = await service.list({
         status: TicketStatus.OPEN,
@@ -176,6 +181,10 @@ describe("TicketService", () => {
         priorityId: "priority-1",
         createdById: "user-1",
         assignedToId: "agent-1",
+        page: 1,
+        limit: 20,
+        sortBy: "createdAt",
+        sortOrder: "desc",
       });
 
       expect(mockPrisma.ticket.findMany).toHaveBeenCalledWith({
@@ -189,14 +198,52 @@ describe("TicketService", () => {
         orderBy: {
           createdAt: "desc",
         },
+        skip: 0,
+        take: 20,
       });
-      expect(result).toEqual([
-        {
-          id: "ticket-1",
-          title: "Need support",
+      expect(mockPrisma.ticket.count).toHaveBeenCalledWith({
+        where: {
           status: TicketStatus.OPEN,
+          categoryId: "category-1",
+          priorityId: "priority-1",
+          createdById: "user-1",
+          assignedToId: "agent-1",
         },
-      ]);
+      });
+      expect(result).toEqual({
+        data: [
+          {
+            id: "ticket-1",
+            title: "Need support",
+            status: TicketStatus.OPEN,
+          },
+        ],
+        pagination: {
+          page: 1,
+          limit: 20,
+          skip: 0,
+          total: 1,
+          totalPages: 1,
+        },
+      });
+    });
+
+    it("should sort tickets by priority level", async () => {
+      mockPrisma.ticket.findMany.mockResolvedValue([]);
+      mockPrisma.ticket.count.mockResolvedValue(0);
+
+      await service.list({
+        sortBy: "priority",
+        sortOrder: "asc",
+      });
+
+      expect(mockPrisma.ticket.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: {
+            priority: { level: "asc" },
+          },
+        }),
+      );
     });
   });
 });
