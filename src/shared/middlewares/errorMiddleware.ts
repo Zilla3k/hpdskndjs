@@ -1,5 +1,6 @@
 import type { ErrorRequestHandler } from "express";
 import { AppError } from "@/shared/errors/appError";
+import { logger } from "@/shared/logger/logger";
 
 type ErrorCategory = "validation" | "auth" | "business" | "internal";
 
@@ -25,6 +26,12 @@ function getErrorCategory(error: AppError): ErrorCategory {
 
 export const errorMiddleware: ErrorRequestHandler = (error, _req, res, _next) => {
   if (error instanceof AppError) {
+    logger.error("Application error", {
+      statusCode: error.statusCode,
+      code: error.code,
+      message: error.message,
+    });
+
     const payload: ErrorResponse = {
       error: {
         category: getErrorCategory(error),
@@ -36,6 +43,10 @@ export const errorMiddleware: ErrorRequestHandler = (error, _req, res, _next) =>
     res.status(error.statusCode).json(payload);
     return;
   }
+
+  logger.error("Unhandled error", {
+    message: error instanceof Error ? error.message : "Unknown error",
+  });
 
   const payload: ErrorResponse = {
     error: {
