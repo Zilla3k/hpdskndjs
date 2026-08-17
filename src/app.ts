@@ -7,6 +7,7 @@ import authRouter from "./modules/auth/routes/authRoutes";
 import categoryRouter from "./modules/categories/routes/categoryRoutes";
 import priorityRouter from "./modules/priorities/routes/priorityRoutes";
 import ticketRouter from "./modules/tickets/routes/ticketRoutes";
+import userRouter from "./modules/users/routes/userRoutes";
 
 export default function createApp(): Express {
   const app = express();
@@ -26,6 +27,7 @@ export default function createApp(): Express {
   app.use("/api/v1/categories", categoryRouter);
   app.use("/api/v1/priorities", priorityRouter);
   app.use("/api/v1/tickets", ticketRouter);
+  app.use("/api/v1/users", userRouter);
 
   return app;
 }
