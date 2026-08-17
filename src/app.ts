@@ -9,6 +9,7 @@ import categoryRouter from "./modules/categories/routes/categoryRoutes";
 import priorityRouter from "./modules/priorities/routes/priorityRoutes";
 import ticketRouter from "./modules/tickets/routes/ticketRoutes";
 import userRouter from "./modules/users/routes/userRoutes";
+import { errorMiddleware } from "./shared/middlewares/errorMiddleware";
 
 export default function createApp(): Express {
   const app = express();
@@ -30,6 +31,7 @@ export default function createApp(): Express {
   app.use("/api/v1/priorities", priorityRouter);
   app.use("/api/v1/tickets", ticketRouter);
   app.use("/api/v1/users", userRouter);
+  app.use(errorMiddleware);
 
   return app;
 }
