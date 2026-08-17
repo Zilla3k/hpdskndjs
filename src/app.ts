@@ -10,6 +10,7 @@ import priorityRouter from "./modules/priorities/routes/priorityRoutes";
 import ticketRouter from "./modules/tickets/routes/ticketRoutes";
 import userRouter from "./modules/users/routes/userRoutes";
 import { errorMiddleware } from "./shared/middlewares/errorMiddleware";
+import { requestLogger } from "./shared/middlewares/requestLogger";
 
 export default function createApp(): Express {
   const app = express();
@@ -17,6 +18,7 @@ export default function createApp(): Express {
   app.use(helmet());
   app.use(cors());
   app.use(express.json());
+  app.use(requestLogger);
 
   app.get("/api/v1/", (_req, _res) => {
     _res.status(200).json({
