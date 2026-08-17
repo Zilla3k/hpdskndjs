@@ -19,13 +19,7 @@ describe("docs", () => {
       bearerFormat: "JWT",
     });
     expect(Object.keys(openApiSpec.paths)).toEqual(
-      expect.arrayContaining([
-        "/auth/register",
-        "/auth/login",
-        "/users",
-        "/tickets",
-        "/dashboard",
-      ]),
+      expect.arrayContaining(["/auth/register", "/auth/login", "/users", "/tickets", "/dashboard"]),
     );
   });
 });

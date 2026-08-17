@@ -830,7 +830,11 @@ export const openApiSpec = {
           { name: "priorityId", in: "query", schema: { type: "string", format: "uuid" } },
           { name: "createdById", in: "query", schema: { type: "string", format: "uuid" } },
           { name: "assignedToId", in: "query", schema: { type: "string", format: "uuid" } },
-          { name: "sortBy", in: "query", schema: { type: "string", enum: ["createdAt", "status", "priority"] } },
+          {
+            name: "sortBy",
+            in: "query",
+            schema: { type: "string", enum: ["createdAt", "status", "priority"] },
+          },
           { name: "sortOrder", in: "query", schema: { type: "string", enum: ["asc", "desc"] } },
         ],
         responses: {
@@ -903,7 +907,12 @@ export const openApiSpec = {
         summary: "Assign ticket",
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: "ticketId", in: "path", required: true, schema: { type: "string", format: "uuid" } },
+          {
+            name: "ticketId",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid" },
+          },
         ],
         requestBody: {
           required: true,
@@ -942,7 +951,12 @@ export const openApiSpec = {
         summary: "Unassign ticket",
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: "ticketId", in: "path", required: true, schema: { type: "string", format: "uuid" } },
+          {
+            name: "ticketId",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid" },
+          },
         ],
         requestBody: {
           required: true,
@@ -980,7 +994,12 @@ export const openApiSpec = {
         summary: "Update ticket status",
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: "ticketId", in: "path", required: true, schema: { type: "string", format: "uuid" } },
+          {
+            name: "ticketId",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid" },
+          },
         ],
         requestBody: {
           required: true,
@@ -1019,7 +1038,12 @@ export const openApiSpec = {
         summary: "Comment on ticket",
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: "ticketId", in: "path", required: true, schema: { type: "string", format: "uuid" } },
+          {
+            name: "ticketId",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid" },
+          },
         ],
         requestBody: {
           required: true,
