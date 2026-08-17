@@ -1,4 +1,5 @@
 import { AppError } from "@/shared/errors/appError";
+import { ForbiddenError } from "@/shared/errors/forbiddenError";
 import { UnauthorizedError } from "@/shared/errors/unauthorizedError";
 import { logger } from "@/shared/logger/logger";
 import { errorMiddleware } from "./errorMiddleware";
@@ -60,6 +61,29 @@ describe("errorMiddleware", () => {
       statusCode: 401,
       code: "UNAUTHORIZED",
       message: "Credentials Invalid",
+    });
+    logSpy.mockRestore();
+  });
+
+  it("should return an auth error response for forbidden errors", () => {
+    const logSpy = jest.spyOn(logger, "error").mockImplementation(() => undefined);
+    const req = {};
+    const res = createResponse();
+
+    errorMiddleware(new ForbiddenError(), req as never, res as never, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        category: "auth",
+        code: "FORBIDDEN",
+        message: "Forbidden",
+      },
+    });
+    expect(logSpy).toHaveBeenCalledWith("Application error", {
+      statusCode: 403,
+      code: "FORBIDDEN",
+      message: "Forbidden",
     });
     logSpy.mockRestore();
   });

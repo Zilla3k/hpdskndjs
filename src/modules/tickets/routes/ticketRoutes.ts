@@ -1,8 +1,11 @@
 import { Router } from "express";
 import { TicketController } from "../controller/ticketController";
+import { authenticateToken } from "@/shared/middlewares/authMiddleware";
 
 const ticketRouter = Router();
 const ticketController = new TicketController();
+
+ticketRouter.use(authenticateToken);
 
 ticketRouter.post("/", ticketController.create.bind(ticketController));
 ticketRouter.get("/", ticketController.list.bind(ticketController));
